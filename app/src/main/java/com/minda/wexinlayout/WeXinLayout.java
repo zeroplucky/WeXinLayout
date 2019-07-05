@@ -100,6 +100,7 @@ public class WeXinLayout extends FrameLayout {
             }
             break;
             case MotionEvent.ACTION_MOVE:
+                Log.e(TAG, "onInterceptTouchEvent: --------------------------------------- ev.getY() =  " + ev.getY() + "  , lastY = " + lastY + " ,getScrollY() = " + getScrollY());
                 if (ev.getY() < lastY && Math.abs(getScrollY()) == 0) {
                     return false;
                 }
@@ -151,11 +152,13 @@ public class WeXinLayout extends FrameLayout {
                 if (deltaY > 0) { //  deltaY > 0 为下滑
                     if (Math.abs(scrollY) < maxOffset && deltaY - scrollY <= maxOffset) {
                         scrollBy(0, -deltaY);
+                        invalidate();
                     }
                     direction = true;
                 } else if (deltaY < 0) {// deltaY < 0 为上滑
-                    if (scrollY < 0 && Math.abs(deltaY + scrollY) <= maxOffset) { // 和坐标值的正反相反
+                    if (scrollY < 0 && deltaY - scrollY >= 0) { // 和坐标值的正反相反
                         scrollBy(0, -deltaY);
+                        invalidate();
                     }
                     direction = false;
                 }
@@ -173,10 +176,10 @@ public class WeXinLayout extends FrameLayout {
         if (!scroller.isFinished() && scroller.computeScrollOffset()) {
             int currY = scroller.getCurrY();
             Log.e(TAG, "computeScroll: currY = " + currY);
-            scrollTo(0, currY);
             if (currY > 0) {
                 scroller.abortAnimation();
-            } else {
+            } else if (currY <= 0) {
+                scrollTo(0, currY);
                 invalidate();
             }
         }
